@@ -8,7 +8,7 @@ def main():
     for dirname, _, filenames in os.walk('images_jpg/'):
         for filename in filenames:
             license_plate_result = license_plate_recognition(dirname + filename)
-            license_plates = {license_plate_result[0]: license_plate_result[1]}
+            license_plates[license_plate_result[0]] = license_plate_result[1]
             print(f'{license_plate_result[0]}: {license_plate_result[1]}]')
     
     print(license_plates)
