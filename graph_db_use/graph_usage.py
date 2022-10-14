@@ -6,6 +6,8 @@ class GraphUse:
     def __init__(self):
         self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
                             auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
+        # self._graph = Graph("bolt://localhost:7687",
+        #                     auth=("neo4j", "danila02"))  # Initialize DB
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
 
     @staticmethod
@@ -89,7 +91,13 @@ class GraphUse:
         self._graph.create(subgraph)
 
     def print_all_data(self) -> None:
-        print(self._graph.query("MATCH (n) RETURN (n)").to_ndarray())
+        print(self._graph.query(
+            "MATCH (n)-[rel]->(p)"
+            "RETURN n.name as vert_1, type(rel) as relation, p.name as vert_2").to_data_frame())
+        print(self._graph.query(
+            "MATCH (n)"
+            "WHERE NOT (n)-[]->() and not ()-[]->(n)"
+            "RETURN n.name as standalone_vert").to_data_frame())
 
     def add_new_node(self, class_: str, name_picture: str) -> None:
         """
@@ -168,7 +176,4 @@ class GraphUse:
         :param recog_photo_num: Recognized photo number
         :return: bool
         """
-        if NodeMatcher(self._graph).match("ExistsNum", name=recog_photo_num).exists():
-            return True
-        else:
-            return False
+        return True if NodeMatcher(self._graph).match("ExistsNum", name=recog_photo_num).exists() else False
