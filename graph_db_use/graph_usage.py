@@ -60,15 +60,6 @@ class GraphUse:
             print("Вершина с таким названием уже существует")
             return True
 
-    def __analyse_node(self, new_node) -> None:
-        if new_node.has_label("Photo"):
-            dict_data_photo_ = {
-                'NUM_AUTO': 'k275lp',
-                'COLOR': 'red',
-                'MARK': 'BMW',
-            }
-            self.__add_photo_with_relation_ver_intersec(dict_data=dict_data_photo_)
-
     def __add_photo_with_relation_ver_intersec(self, dict_data: dict) -> None:
         """
         Add name_photo with relations
@@ -99,17 +90,18 @@ class GraphUse:
             "WHERE NOT (n)-[]->() and not ()-[]->(n)"
             "RETURN n.name as standalone_vert").to_data_frame())
 
-    def add_new_node(self, class_: str, name_picture: str) -> None:
+    def add_new_node(self, name_picture: str, func_recognize) -> None:
         """
         Add new node in DB
-        :param class_: name of class of vertex
         :param name_picture: name of vertex
+        :param func_recognize: func that recognize data from photo
         :return: None
         """
         if not GraphUse.__check_exists_vertex(self, type_="name_photo", add_ver=name_picture):
-            new_node = Node(class_, name=name_picture)
+            new_node = Node("Photo", name=name_picture)
             self._graph.create(new_node)
-            self.__analyse_node(new_node)
+            dict_data = func_recognize(name_picture)
+            self.__add_photo_with_relation_ver_intersec(dict_data=dict_data)
 
     def add_num_auto_for_entry(self, num_auto: str, first_name_: str, last_name_: str) -> bool:
         """
