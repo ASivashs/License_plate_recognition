@@ -1,4 +1,4 @@
-from license_plate_recognition import license_plate_recognition
+from recognition.license_plate_recognition import license_plate_recognition
 import json
 import os
 
