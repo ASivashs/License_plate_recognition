@@ -41,25 +41,6 @@ class GraphUse:
         except KeyError:
             print("Не было обнаружено новой вершины")
 
-    def __check_exists_vertex(self, type_: str, add_ver: str) -> bool:  # Может убрать эту функцию
-        """
-        Same name check
-        :param add_ver: Vertex to check
-        :param type_: name_photo for class Photo, num_auto for class ExistsNum
-        :return: bool
-        """
-        match type_:
-            case "name_photo":
-                bool_res = NodeMatcher(self._graph).match(name=add_ver).exists()
-            case "num_auto":
-                bool_res = NodeMatcher(self._graph).match("ExistsNum", name=add_ver).exists()
-
-        if not bool_res:
-            return False
-        else:
-            print("Вершина с таким названием уже существует")
-            return True
-
     def __add_photo_with_relation_ver_intersec(self, dict_data: dict) -> None:
         """
         Add name_photo with relations
@@ -90,18 +71,23 @@ class GraphUse:
             "WHERE NOT (n)-[]->() and not ()-[]->(n)"
             "RETURN n.name as standalone_vert").to_data_frame())
 
-    def add_new_node(self, name_picture: str, func_recognize) -> None:
+    def add_new_node_photo(self, name_picture: str, func_recognize) -> None:
         """
         Add new node in DB
         :param name_picture: name of vertex
         :param func_recognize: func that recognize data from photo
         :return: None
         """
-        if not GraphUse.__check_exists_vertex(self, type_="name_photo", add_ver=name_picture):
+        if not NodeMatcher(self._graph).match("Photo", name=name_picture).exists():
             new_node = Node("Photo", name=name_picture)
             self._graph.create(new_node)
-            dict_data = func_recognize(name_picture)
-            self.__add_photo_with_relation_ver_intersec(dict_data=dict_data)
+            try:
+                dict_data = func_recognize(name_picture)
+                self.__add_photo_with_relation_ver_intersec(dict_data=dict_data)
+            except TypeError:
+                print("Фотография добавлена, но не обработана")
+        else:
+            print("Такая ссылка на фотографию уже существует")
 
     def add_num_auto_for_entry(self, num_auto: str, first_name_: str, last_name_: str) -> bool:
         """
@@ -111,7 +97,7 @@ class GraphUse:
         :param last_name_: last name driver
         :return: None
         """
-        if not GraphUse.__check_exists_vertex(self, type_="num_auto", add_ver=num_auto):
+        if not NodeMatcher(self._graph).match("ExistsNum", name=num_auto).exists():
             main_node = Node("ExistsNum", name=num_auto)
             first_name_node = Node("Person", name=first_name_)
             last_name_node = Node("Person", name=last_name_)
@@ -122,6 +108,7 @@ class GraphUse:
             self._graph.create(subgraph)
             return True
         else:
+            print('Такой номер на въезд уже существует')
             return False
 
     def delete_num_auto_for_entry(self, num_auto: str):
