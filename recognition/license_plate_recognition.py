@@ -7,7 +7,8 @@ import pytesseract
 def license_plate_recognition(image_name=None):
     """
     Detect license plate and convert license plate number to image.
-    Return tuple with image name and responsed number or None.
+    :arg1: img path.
+    :return: tuple with image name and responsed number or None.
     """
 
     img = cv2.imread(image_name, cv2.IMREAD_COLOR)
@@ -38,7 +39,7 @@ def license_plate_recognition(image_name=None):
     mask = np.zeros(gray.shape, np.uint8)
     try:
         new_image = cv2.drawContours(mask, [screen_cnt], 0, 255, -1)
-    except Exception:
+    except Exception as exc:
         return (image_name, None)
 
     new_image = cv2.bitwise_and(img, img, mask=mask)
@@ -51,11 +52,19 @@ def license_plate_recognition(image_name=None):
     license_plate = pytesseract.image_to_string(Cropped, config='--psm 11')
 
     # This block illustrate image and cropped image
-    # img = cv2.resize(img,(500,300))
-    # Cropped = cv2.resize(Cropped,(400,200))
-    # cv2.imshow('car',img)
-    # cv2.imshow('Cropped',Cropped)
+    img = cv2.resize(img,(500,300))
+    Cropped = cv2.resize(Cropped,(400,200))
+    # cv2.imshow('car', img)
+    # cv2.imshow('Cropped', Cropped)
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
+    
+    img_name = image_name.split('/')[-1]
+    
+    filename_responsed = f'responsed_images/responsed_{img_name}'
+    cv2.imwrite(filename_responsed, img)
+
+    filename_cropped = f'cropped_images/cropped_{img_name}'
+    cv2.imwrite(filename_cropped, Cropped)
 
     return (image_name, license_plate)
