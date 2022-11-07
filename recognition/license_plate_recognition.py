@@ -40,7 +40,8 @@ def license_plate_recognition(image_name=None):
     try:
         new_image = cv2.drawContours(mask, [screen_cnt], 0, 255, -1)
     except Exception as exc:
-        return (image_name, None)
+        img_name = image_name.split('/')[-1]
+        return (img_name, None)
 
     new_image = cv2.bitwise_and(img, img, mask=mask)
 
@@ -67,4 +68,5 @@ def license_plate_recognition(image_name=None):
     filename_cropped = f'cropped_images/cropped_{img_name}'
     cv2.imwrite(filename_cropped, Cropped)
 
-    return (image_name, license_plate)
+    license_plate = license_plate.strip()
+    return (img_name, license_plate)

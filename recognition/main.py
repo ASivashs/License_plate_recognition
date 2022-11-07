@@ -25,7 +25,6 @@ def main():
             license_plates[license_plate_result[0]] = license_plate_result[1]
             print(f'{license_plate_result[0]}: {license_plate_result[1]}]')
     
-    print(license_plates)
     with open('recognition/responsed_license_plates.json', 'w') as save_file:
         json.dump(license_plates, save_file, indent=6)
 
