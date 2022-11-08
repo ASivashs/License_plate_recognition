@@ -2,7 +2,14 @@ import cv2
 import imutils
 import numpy as np
 import pytesseract
+import sys
+pytesseract.pytesseract.tesseract_cmd = r'D:\\Programs\\Tesseract\\tesseract.exe'
 
+def check_slash():
+    if sys.platform == "Linux":
+        return "/"
+    else:
+        return "\\"
 
 def license_plate_recognition(image_name=None):
     """
@@ -40,7 +47,7 @@ def license_plate_recognition(image_name=None):
     try:
         new_image = cv2.drawContours(mask, [screen_cnt], 0, 255, -1)
     except Exception as exc:
-        img_name = image_name.split('/')[-1]
+        img_name = image_name.split(check_slash())[-1]
         return (img_name, None)
 
     new_image = cv2.bitwise_and(img, img, mask=mask)
@@ -60,12 +67,12 @@ def license_plate_recognition(image_name=None):
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
     
-    img_name = image_name.split('/')[-1]
+    img_name = image_name.split(check_slash())[-1]
     
-    filename_responsed = f'responsed_images/responsed_{img_name}'
+    filename_responsed = f'responsed_images{check_slash()}responsed_{img_name}'
     cv2.imwrite(filename_responsed, img)
 
-    filename_cropped = f'cropped_images/cropped_{img_name}'
+    filename_cropped = f'cropped_images{check_slash()}cropped_{img_name}'
     cv2.imwrite(filename_cropped, Cropped)
 
     license_plate = license_plate.strip()
