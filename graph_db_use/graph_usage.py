@@ -4,8 +4,10 @@ from py2neo.matching import *
 
 class GraphUse:
     def __init__(self):
-        self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
-                            auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
+        # self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
+        #                     auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
+        self._graph = Graph("bolt://localhost:7687",
+                            auth=("neo4j", "danila02"))  # Initialize DB
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
 
     @staticmethod
@@ -32,49 +34,21 @@ class GraphUse:
         """
         set_before_change = set(self.__convert_list(self._data_before_change))
         set_after_change = set(self.__convert_list(self._graph.query("MATCH (n) RETURN (n)").to_ndarray()))
-        inter_sec_set = set_after_change.difference(set_before_change)
+        inter_sec_set = set_after_change.difference(set_before_change).pop()
         self.__update_data_before_change()
         try:
-            return NodeMatcher(self._graph).match(name=inter_sec_set.pop()).first()
+            return NodeMatcher(self._graph).match(name=inter_sec_set).first(), inter_sec_set
         except KeyError:
             print("Не было обнаружено новой вершины")
-
-    def __check_exists_vertex(self, type_: str, add_ver: str) -> bool:  # Может убрать эту функцию
-        """
-        Same name check
-        :param add_ver: Vertex to check
-        :param type_: name_photo for class Photo, num_auto for class ExistsNum
-        :return: bool
-        """
-        match type_:
-            case "name_photo":
-                bool_res = NodeMatcher(self._graph).match(name=add_ver).exists()
-            case "num_auto":
-                bool_res = NodeMatcher(self._graph).match("ExistsNum", name=add_ver).exists()
-
-        if not bool_res:
-            return False
-        else:
-            print("Вершина с таким названием уже существует")
-            return True
-
-    def __analyse_node(self, new_node) -> None:
-        if new_node.has_label("Photo"):
-            dict_data_photo_ = {
-                'NUM_AUTO': 'k275lp',
-                'COLOR': 'red',
-                'MARK': 'BMW',
-            }
-            self.__add_photo_with_relation_ver_intersec(dict_data=dict_data_photo_)
 
     def __add_photo_with_relation_ver_intersec(self, dict_data: dict) -> None:
         """
         Add name_photo with relations
-        :param dict_data: dict key can be: name_photo, NUM_AUTO, COLOR, MARK
+        :param dict_data: dict key can be: NUM_AUTO, COLOR, MARK
         :return: None
         """
         list_of_nodes, list_of_relations = [], []
-        main_node = self.__find_vertex_after_change()
+        main_node, name_main_node = self.__find_vertex_after_change()
         try:
             for key, value in dict_data.items():
                 nodes = Node("Photo_data", name=value)
@@ -87,21 +61,53 @@ class GraphUse:
         subgraph = Subgraph(nodes=list_of_nodes,
                             relationships=list_of_relations)
         self._graph.create(subgraph)
+        self.__create_rel_exist_and_add_vertex(name_main_node)
+
+    def __create_rel_exist_and_add_vertex(self, name_node: str) -> bool:
+        """
+        Create relation between recognize number and exist number
+        :param name_node name photo node that find number
+        :return: bool
+        """
+        nodes = NodeMatcher(self._graph)
+        recog_num_photo = self._graph.query(f"match (n:Photo) - [:NUM_AUTO] -> (auto_num) "
+                                            f"where n.name = \"{name_node}\" "
+                                            f"return auto_num.name").evaluate()
+        try:
+            ver_1 = nodes.match("Photo_data", name=recog_num_photo).first()
+            ver_2 = nodes.match("ExistsNum", name=recog_num_photo).first()
+            rel = Relationship(ver_1, "ALLOW_ENTER", ver_2)
+            self._graph.create(rel)
+            return True
+        except AttributeError:
+            return False
 
     def print_all_data(self) -> None:
-        print(self._graph.query("MATCH (n) RETURN (n)").to_ndarray())
+        print(self._graph.query(
+            "MATCH (n)-[rel]->(p)"
+            "RETURN n.name as vert_1, type(rel) as relation, p.name as vert_2").to_data_frame())
+        print(self._graph.query(
+            "MATCH (n)"
+            "WHERE NOT (n)-[]->() and not ()-[]->(n)"
+            "RETURN n.name as standalone_vert").to_data_frame())
 
-    def add_new_node(self, class_: str, name_picture: str) -> None:
+    def add_new_node_photo(self, name_picture: str, func_recognize) -> None:
         """
         Add new node in DB
-        :param class_: name of class of vertex
         :param name_picture: name of vertex
+        :param func_recognize: func that recognize data from photo
         :return: None
         """
-        if not GraphUse.__check_exists_vertex(self, type_="name_photo", add_ver=name_picture):
-            new_node = Node(class_, name=name_picture)
+        if not NodeMatcher(self._graph).match("Photo", name=name_picture).exists():
+            new_node = Node("Photo", name=name_picture)
             self._graph.create(new_node)
-            self.__analyse_node(new_node)
+            try:
+                dict_data = {"NUM_AUTO": "e781akx", "COLOR": "black", "MARK": "skoda"}  # func_recognize(name_picture)
+                self.__add_photo_with_relation_ver_intersec(dict_data=dict_data)
+            except TypeError:
+                print("Фотография добавлена, но не обработана")
+        else:
+            print("Такая ссылка на фотографию уже существует")
 
     def add_num_auto_for_entry(self, num_auto: str, first_name_: str, last_name_: str) -> bool:
         """
@@ -111,7 +117,7 @@ class GraphUse:
         :param last_name_: last name driver
         :return: None
         """
-        if not GraphUse.__check_exists_vertex(self, type_="num_auto", add_ver=num_auto):
+        if not NodeMatcher(self._graph).match("ExistsNum", name=num_auto).exists():
             main_node = Node("ExistsNum", name=num_auto)
             first_name_node = Node("Person", name=first_name_)
             last_name_node = Node("Person", name=last_name_)
@@ -122,6 +128,7 @@ class GraphUse:
             self._graph.create(subgraph)
             return True
         else:
+            print('Такой номер на въезд уже существует')
             return False
 
     def delete_num_auto_for_entry(self, num_auto: str):
@@ -168,7 +175,4 @@ class GraphUse:
         :param recog_photo_num: Recognized photo number
         :return: bool
         """
-        if NodeMatcher(self._graph).match("ExistsNum", name=recog_photo_num).exists():
-            return True
-        else:
-            return False
+        return True if NodeMatcher(self._graph).match("ExistsNum", name=recog_photo_num).exists() else False
