@@ -4,10 +4,10 @@ from py2neo.matching import *
 
 class GraphUse:
     def __init__(self):
-        self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
-                            auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
-        # self._graph = Graph("bolt://localhost:7687",
-        #                     auth=("neo4j", "danila02"))  # Initialize DB
+        # self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
+        #                     auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
+        self._graph = Graph("bolt://localhost:7687",
+                            auth=("neo4j", "danila02"))  # Initialize DB
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
 
     @staticmethod
@@ -34,21 +34,21 @@ class GraphUse:
         """
         set_before_change = set(self.__convert_list(self._data_before_change))
         set_after_change = set(self.__convert_list(self._graph.query("MATCH (n) RETURN (n)").to_ndarray()))
-        inter_sec_set = set_after_change.difference(set_before_change)
+        inter_sec_set = set_after_change.difference(set_before_change).pop()
         self.__update_data_before_change()
         try:
-            return NodeMatcher(self._graph).match(name=inter_sec_set.pop()).first()
+            return NodeMatcher(self._graph).match(name=inter_sec_set).first(), inter_sec_set
         except KeyError:
             print("Не было обнаружено новой вершины")
 
     def __add_photo_with_relation_ver_intersec(self, dict_data: dict) -> None:
         """
         Add name_photo with relations
-        :param dict_data: dict key can be: name_photo, NUM_AUTO, COLOR, MARK
+        :param dict_data: dict key can be: NUM_AUTO, COLOR, MARK
         :return: None
         """
         list_of_nodes, list_of_relations = [], []
-        main_node = self.__find_vertex_after_change()
+        main_node, name_main_node = self.__find_vertex_after_change()
         try:
             for key, value in dict_data.items():
                 nodes = Node("Photo_data", name=value)
@@ -61,6 +61,26 @@ class GraphUse:
         subgraph = Subgraph(nodes=list_of_nodes,
                             relationships=list_of_relations)
         self._graph.create(subgraph)
+        self.__create_rel_exist_and_add_vertex(name_main_node)
+
+    def __create_rel_exist_and_add_vertex(self, name_node: str) -> bool:
+        """
+        Create relation between recognize number and exist number
+        :param name_node name photo node that find number
+        :return: bool
+        """
+        nodes = NodeMatcher(self._graph)
+        recog_num_photo = self._graph.query(f"match (n:Photo) - [:NUM_AUTO] -> (auto_num) "
+                                            f"where n.name = \"{name_node}\" "
+                                            f"return auto_num.name").evaluate()
+        try:
+            ver_1 = nodes.match("Photo_data", name=recog_num_photo).first()
+            ver_2 = nodes.match("ExistsNum", name=recog_num_photo).first()
+            rel = Relationship(ver_1, "ALLOW_ENTER", ver_2)
+            self._graph.create(rel)
+            return True
+        except AttributeError:
+            return False
 
     def print_all_data(self) -> None:
         print(self._graph.query(
@@ -82,7 +102,7 @@ class GraphUse:
             new_node = Node("Photo", name=name_picture)
             self._graph.create(new_node)
             try:
-                dict_data = func_recognize(name_picture)
+                dict_data = {"NUM_AUTO": "e781akx", "COLOR": "black", "MARK": "skoda"}  # func_recognize(name_picture)
                 self.__add_photo_with_relation_ver_intersec(dict_data=dict_data)
             except TypeError:
                 print("Фотография добавлена, но не обработана")
