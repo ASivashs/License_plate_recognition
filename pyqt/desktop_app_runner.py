@@ -20,6 +20,8 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         if file:
             print(file)
 
+        if True:
+            self.frame.setStyleSheet("background-color: rgb(0, 214, 120);\n")
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

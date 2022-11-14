@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'design.ui'
+# Form implementation generated from reading ui file 'pyqt/design/design.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -14,42 +14,75 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(559, 582)
+        MainWindow.resize(439, 474)
+        MainWindow.setStyleSheet("background-color: rgb(29, 29, 29);\n"
+"font: 8pt \"Papyrus\";\n"
+"color: rgb(255, 255, 255);\n"
+"")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setMaximumSize(QtCore.QSize(633, 16777215))
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.verticalTabWidget = QtWidgets.QTabWidget(self.centralwidget)
+        self.verticalTabWidget.setStyleSheet("color: rgb(50, 50, 50);")
+        self.verticalTabWidget.setObjectName("verticalTabWidget")
+        self.verticalTabWidgetPage1 = QtWidgets.QWidget()
+        self.verticalTabWidgetPage1.setObjectName("verticalTabWidgetPage1")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.verticalTabWidgetPage1)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.frame = QtWidgets.QFrame(self.verticalTabWidgetPage1)
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.verticalLayout_3.addWidget(self.frame)
+        self.label = QtWidgets.QLabel(self.verticalTabWidgetPage1)
+        self.label.setStyleSheet("color:rgb(255, 255, 255)")
         self.label.setObjectName("label")
-        self.horizontalLayout_2.addWidget(self.label)
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setObjectName("label_2")
-        self.horizontalLayout_2.addWidget(self.label_2)
-        self.verticalLayout.addLayout(self.horizontalLayout_2)
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.verticalLayout_3.addWidget(self.label)
+        self.pushButton = QtWidgets.QPushButton(self.verticalTabWidgetPage1)
+        self.pushButton.setStyleSheet("background-color: rgb(94, 94, 94);\n"
+"color: rgb(255, 255, 255);\n"
+"font: 8pt \"Snap ITC\";")
         self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout.addWidget(self.pushButton)
-        self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
+        self.verticalLayout_3.addWidget(self.pushButton)
+        self.verticalTabWidget.addTab(self.verticalTabWidgetPage1, "first")
+        self.verticalTabWidgetPage2 = QtWidgets.QWidget()
+        self.verticalTabWidgetPage2.setObjectName("verticalTabWidgetPage2")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.verticalTabWidgetPage2)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.textBrowser = QtWidgets.QTextBrowser(self.verticalTabWidgetPage2)
+        self.textBrowser.setObjectName("textBrowser")
+        self.verticalLayout_4.addWidget(self.textBrowser)
+        self.label_2 = QtWidgets.QLabel(self.verticalTabWidgetPage2)
+        self.label_2.setStyleSheet("color: rgb(255, 255, 255);")
+        self.label_2.setObjectName("label_2")
+        self.verticalLayout_4.addWidget(self.label_2)
+        self.pushButton_2 = QtWidgets.QPushButton(self.verticalTabWidgetPage2)
+        self.pushButton_2.setStyleSheet("background-color: rgb(94, 94, 94);\n"
+"color: rgb(255, 255, 255);\n"
+"font: 8pt \"Snap ITC\";")
         self.pushButton_2.setObjectName("pushButton_2")
-        self.horizontalLayout.addWidget(self.pushButton_2)
-        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.verticalLayout_4.addWidget(self.pushButton_2)
+        self.verticalTabWidget.addTab(self.verticalTabWidgetPage2, "second")
+        self.verticalLayout.addWidget(self.verticalTabWidget)
         self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_3.setStyleSheet("background-color: rgb(64, 64, 64);\n"
+"font: 8pt \"Snap ITC\";")
         self.pushButton_3.setObjectName("pushButton_3")
         self.verticalLayout.addWidget(self.pushButton_3)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
+        self.verticalTabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label.setText(_translate("MainWindow", "Проверка разрешения въезда автомобиля"))
-        self.label_2.setText(_translate("MainWindow", "Вывод данных с фото"))
-        self.pushButton.setText(_translate("MainWindow", "Начать"))
-        self.pushButton_2.setText(_translate("MainWindow", "Начать"))
+        self.verticalTabWidgetPage1.setToolTip(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
+        self.label.setText(_translate("MainWindow", "Выбрать фото для проверки возможности проезда"))
+        self.pushButton.setText(_translate("MainWindow", "Выбрать фото..."))
+        self.label_2.setText(_translate("MainWindow", "Выбрать фото для вывода информации о номере автомобиля"))
+        self.pushButton_2.setText(_translate("MainWindow", "Выбрать фото..."))
         self.pushButton_3.setText(_translate("MainWindow", "Выход"))
