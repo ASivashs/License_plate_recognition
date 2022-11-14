@@ -7,3 +7,4 @@ pyparsing==3.0.9
 pytesseract==0.3.10
 py2neo==2021.2.3
 pandas==1.5.0
+pyTelegramBotAPI==4.7.1

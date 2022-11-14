@@ -1,7 +1,9 @@
-from license_plate_recognition import license_plate_recognition, check_slash
+from recognition.license_plate_recognition import license_plate_recognition, check_slash
 import json
 import os
+from graph_db_use.graph_usage import GraphUse
 
+graph_usage = GraphUse()
 
 def response(img_path):
     """
@@ -30,4 +32,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    print(response("D:\Programs\PyCharm 2021.3.3\License_plate_recognition\images_jpg\Cars140.jpg"))

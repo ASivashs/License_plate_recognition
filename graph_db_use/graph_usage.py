@@ -133,11 +133,13 @@ class GraphUse:
 
     def delete_num_auto_for_entry(self, num_auto: str):
         if NodeMatcher(self._graph).match("ExistsNum", name=num_auto).exists():
+            print(True)
             self._graph.run(f"match (n:ExistsNum)-[]->(p)"
                             f"where n.name = \"{num_auto}\""
                             f"detach delete n, p")
             return True
         else:
+            print(False)
             return False
 
     def add_new_relation(self, class_1: str, name_picture_1: str, class_2: str, name_picture_2: str,
@@ -155,19 +157,26 @@ class GraphUse:
         except AttributeError:
             print('Введена не существующая вершина')
 
-    def ret_rel_with_num(self, recog_photo_num: str) -> list:
+    def find_and_choose(self, recog_photo_num: str) -> dict:
+        """
+        Find vertex in class ExistsNum and return his data
+        :param recog_photo_num: Recognized photo number
+        :return: dict
+        """
+        if NodeMatcher(self._graph).match("ExistsNum", name=recog_photo_num).exists():
+            return self.ret_rel_with_num(recog_photo_num)
+
+    def ret_rel_with_num(self, recog_photo_num: str) -> dict:
         """
         Return list of vertex relation
         :param recog_photo_num: Recognized photo number
         :return: list
         """
-        data_vertex = self._graph.query(f"match (n:ExistsNum)-[]->(p)"
+        data_vertex = self._graph.query(f"match (n:ExistsNum)-[rel]->(p)"
                                         f"where n.name = \"{recog_photo_num}\" "
-                                        f"return p.name").data()
-        list_of_rel_data = []
-        for dicts in data_vertex:
-            list_of_rel_data.append(*dicts.values())
-        return list_of_rel_data
+                                        f"return type(rel), p.name").data()
+        dict_of_data_driver = {list(dicts.values())[0]: list(dicts.values())[1] for dicts in data_vertex}
+        return dict_of_data_driver
 
     def search_exists_num(self, recog_photo_num: str) -> bool:
         """
@@ -176,3 +185,8 @@ class GraphUse:
         :return: bool
         """
         return True if NodeMatcher(self._graph).match("ExistsNum", name=recog_photo_num).exists() else False
+
+    def get_all_add_drivers(self):
+        data_vertex = self._graph.query("match (n:ExistsNum)"
+                                        "return n.name").to_ndarray()
+        return data_vertex
