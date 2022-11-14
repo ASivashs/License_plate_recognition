@@ -16,7 +16,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(439, 474)
         MainWindow.setStyleSheet("background-color: rgb(29, 29, 29);\n"
-"font: 8pt \"Papyrus\";\n"
+"font: 14pt;\n"
 "color: rgb(255, 255, 255);\n"
 "")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -51,7 +51,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.verticalLayout_3)
         self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_3.setStyleSheet("background-color: rgb(64, 64, 64);\n"
-"font: 8pt \"Snap ITC\";")
+"font: 14pt;")
         self.pushButton_3.setObjectName("pushButton_3")
         self.verticalLayout.addWidget(self.pushButton_3)
         MainWindow.setCentralWidget(self.centralwidget)

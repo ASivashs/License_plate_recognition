@@ -25,9 +25,6 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.label.setPixmap(pixmap)
 
 
-        if True:
-            self.frame.setStyleSheet("background-color: rgb(0, 214, 120);\n")
-
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
