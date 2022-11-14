@@ -5,7 +5,7 @@ from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QPixmap
 
-from design import design
+from pyqt.design import design
 from recognition.main import response, graph_usage
 
 class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
