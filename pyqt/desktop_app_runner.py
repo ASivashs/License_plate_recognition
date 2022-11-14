@@ -3,6 +3,7 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtGui import QPixmap
 
 from design import design
 
@@ -12,16 +13,21 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
         self.pushButton.clicked.connect(self.browse_folder)
-        self.pushButton_2.clicked.connect(self.browse_folder)
         self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)
 
     def browse_folder(self):
         file, _ = QFileDialog.getOpenFileName(self, 'Open File', './', "Image (*.png *.jpg *jpeg)")
         if file:
             print(file)
+        pixmap = QPixmap(file)
+        'pixmap.scaled(width=self.label.width(), height=self.label.height())'
+
+        self.label.setPixmap(pixmap)
+
 
         if True:
             self.frame.setStyleSheet("background-color: rgb(0, 214, 120);\n")
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
