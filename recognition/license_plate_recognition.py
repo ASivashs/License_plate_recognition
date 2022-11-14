@@ -6,10 +6,7 @@ import sys
 pytesseract.pytesseract.tesseract_cmd = r'D:\\Programs\\Tesseract\\tesseract.exe'
 
 def check_slash():
-    if sys.platform == "Linux":
-        return "/"
-    else:
-        return "\\"
+    return "/" if sys.platform == "Linux" else "\\"
 
 def license_plate_recognition(image_name=None):
     """
