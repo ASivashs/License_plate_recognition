@@ -4,10 +4,10 @@ from py2neo.matching import *
 
 class GraphUse:
     def __init__(self):
-        # self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
-        #                     auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
-        self._graph = Graph("bolt://localhost:7687",
-                            auth=("neo4j", "danila02"))  # Initialize DB
+        self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
+                            auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
+        # self._graph = Graph("bolt://localhost:7687",
+        #                     auth=("neo4j", "danila02"))  # Initialize DB
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
 
     @staticmethod
@@ -133,13 +133,11 @@ class GraphUse:
 
     def delete_num_auto_for_entry(self, num_auto: str):
         if NodeMatcher(self._graph).match("ExistsNum", name=num_auto).exists():
-            print(True)
             self._graph.run(f"match (n:ExistsNum)-[]->(p)"
                             f"where n.name = \"{num_auto}\""
                             f"detach delete n, p")
             return True
         else:
-            print(False)
             return False
 
     def add_new_relation(self, class_1: str, name_picture_1: str, class_2: str, name_picture_2: str,
