@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QPixmap
 
 from design import design
-
+from recognition.main import response, graph_usage
 
 class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def __init__(self):
@@ -24,7 +24,20 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         self.label.setPixmap(pixmap)
 
+        self.label.setScaledContents(True)
 
+        self.add_info(file)
+
+    def add_info(self, path):
+        _, recog_num = response(path)
+        self.label_2.setText(recog_num)
+        if graph_usage.find_and_choose(recog_num):
+            dict_driver = graph_usage.find_and_choose(recog_num)
+            self.label_3.setText(dict_driver["FIRST_NAME"])
+            self.label_4.setText(dict_driver["LAST_NAME"])
+        else:
+            self.label_3.setText("Нет информации")
+            self.label_4.setText("Нет информации")
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

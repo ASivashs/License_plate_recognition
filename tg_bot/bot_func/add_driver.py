@@ -1,5 +1,6 @@
 from tg_bot.bot_init import bot
 from telebot import types
+from recognition.main import graph_usage
 
 dict_machine_data = {'num_machine': '',
                      'name': '',
@@ -35,15 +36,15 @@ def get_surname_and_check(message):
                f'Фамилия водителя: {dict_machine_data["surname"]}'
     bot.send_message(message.chat.id, text=question, reply_markup=keyboard)
 
-# @bot.callback_query_handler(func=lambda call: True)
-# def callback_worker(call):
-#     if call.data == "yes":
-#         if graph_usage.add_num_auto_for_entry(num_auto=dict_machine_data["num_machine"],
-#                                               first_name_=dict_machine_data["name"],
-#                                               last_name_=dict_machine_data["surname"]):
-#             bot.send_message(call.message.chat.id, 'Данные были успешно добавлены!')
-#         else:
-#             bot.send_message(call.message.chat.id,
-#                              'Данные не были добавлены, так как такой номер машины уже существует')
-#     if call.data == "no":
-#         bot.send_message(call.message.chat.id, 'Повторно введите комманду /add')
+@bot.callback_query_handler(func=lambda call: True)
+def callback_worker(call):
+    if call.data == "yes":
+        if graph_usage.add_num_auto_for_entry(num_auto=dict_machine_data["num_machine"],
+                                              first_name_=dict_machine_data["name"],
+                                              last_name_=dict_machine_data["surname"]):
+            bot.send_message(call.message.chat.id, 'Данные были успешно добавлены!')
+        else:
+            bot.send_message(call.message.chat.id,
+                             'Данные не были добавлены, так как такой номер машины уже существует')
+    if call.data == "no":
+        bot.send_message(call.message.chat.id, 'Повторно введите комманду /add')

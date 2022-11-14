@@ -51,7 +51,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.verticalLayout_3)
         self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_3.setStyleSheet("background-color: rgb(64, 64, 64);\n"
-"font: 14pt;")
+"font: 14pt \"Snap ITC\";")
         self.pushButton_3.setObjectName("pushButton_3")
         self.verticalLayout.addWidget(self.pushButton_3)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -62,9 +62,9 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label.setText(_translate("MainWindow", "TextLabel"))
-        self.label_2.setText(_translate("MainWindow", "TextLabel"))
-        self.label_3.setText(_translate("MainWindow", "TextLabel"))
-        self.label_4.setText(_translate("MainWindow", "TextLabel"))
+        self.label.setText(_translate("MainWindow", "Фото"))
+        self.label_2.setText(_translate("MainWindow", "Номер"))
+        self.label_3.setText(_translate("MainWindow", "Имя"))
+        self.label_4.setText(_translate("MainWindow", "Фамилия"))
         self.pushButton.setText(_translate("MainWindow", "Выбрать фото"))
         self.pushButton_3.setText(_translate("MainWindow", "Выход"))
