@@ -63,18 +63,25 @@ class GraphUse:
         subgraph = Subgraph(nodes=list_of_nodes,
                             relationships=list_of_relations)
         self._graph.create(subgraph)
-        self.__create_rel_exist_and_add_vertex(name_main_node)
+        self.__create_rel_exist_and_add_vertex(name_main_node, "photo")
 
-    def __create_rel_exist_and_add_vertex(self, name_node: str) -> bool:
+    def __create_rel_exist_and_add_vertex(self, name_node: str, choose: str) -> bool:
         """
         Create relation between recognize number and exist number
+        :param choose photo - for photo class, exist for exist class
         :param name_node name photo node that find number
         :return: bool
         """
         nodes = NodeMatcher(self._graph)
-        recog_num_photo = self._graph.query(f"match (n:Photo) - [:NUM_AUTO] -> (auto_num) "
-                                            f"where n.name = \"{name_node}\" "
-                                            f"return auto_num.name").evaluate()
+        match choose:
+            case "photo":
+                recog_num_photo = self._graph.query(f"match (n:Photo) - [:NUM_AUTO] -> (auto_num) "
+                                                    f"where n.name = \"{name_node}\" "
+                                                    f"return auto_num.name").evaluate()
+            case "exist":
+                recog_num_photo = self._graph.query(f"match (n:Photo) - [:NUM_AUTO] -> (auto_num) "
+                                                    f"where auto_num.name = \"{name_node}\" "
+                                                    f"return auto_num.name").evaluate()
         try:
             ver_1 = nodes.match("Photo_data", name=recog_num_photo).first()
             ver_2 = nodes.match("ExistsNum", name=recog_num_photo).first()
@@ -129,6 +136,7 @@ class GraphUse:
             subgraph = Subgraph(nodes=[main_node, first_name_node, last_name_node],
                                 relationships=[rel_main_first, rel_main_last])
             self._graph.create(subgraph)
+            self.__create_rel_exist_and_add_vertex(num_auto, "exist")
             return True
         else:
             print('Такой номер на въезд уже существует')
