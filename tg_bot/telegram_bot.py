@@ -56,17 +56,19 @@ def get_surname_and_check(message):
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
-    if call.data == "yes":
-        if graph_usage.add_num_auto_for_entry(num_auto=dict_machine_data["num_machine"],
-                                              first_name_=dict_machine_data["name"],
-                                              last_name_=dict_machine_data["surname"]):
-            bot.send_message(call.message.chat.id, 'Данные были успешно добавлены!')
-        else:
+    if all(dict_machine_data.values()):
+        match call.data:
+            case "yes":
+                if graph_usage.add_num_auto_for_entry(num_auto=dict_machine_data["num_machine"],
+                                                      first_name_=dict_machine_data["name"],
+                                                      last_name_=dict_machine_data["surname"]):
+                    bot.send_message(call.message.chat.id, 'Данные были успешно добавлены!')
+                else:
 
-            bot.send_message(call.message.chat.id,
-                             'Данные не были добавлены, так как такой номер машины уже существует')
-    if call.data == "no":
-        bot.send_message(call.message.chat.id, 'Повторно выберите команду')
+                    bot.send_message(call.message.chat.id,
+                                     'Данные не были добавлены, так как такой номер машины уже существует')
+            case "no":
+                bot.send_message(call.message.chat.id, 'Повторно выберите команду')
     for key in dict_machine_data:
         dict_machine_data[key] = ''
 

@@ -15,6 +15,7 @@ def make_keyboard(list_drivers):
     for sub_list in list_drivers:
         dict_name_driver = graph_usage.find_and_choose(str(sub_list[0]))
         markup.add(types.InlineKeyboardButton(
-            text=str(sub_list[0]) + " -- " + dict_name_driver["LAST_NAME"] + " " + dict_name_driver["FIRST_NAME"],
-            callback_data=sub_list[0]))
+            text=str(sub_list[0]), callback_data=sub_list[0]),
+            types.InlineKeyboardButton(text=dict_name_driver["LAST_NAME"] + " " + dict_name_driver["FIRST_NAME"],
+                                       callback_data=sub_list[0]))
     return markup
