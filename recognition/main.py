@@ -8,7 +8,7 @@ graph_usage = GraphUse()
 def response(img_path):
     """
     Recognize license plate number.
-    :arg1: Full path to image.
+    :img_path: Full path to image.
     :return: image_name, recognized license plate number.
     """
     license_plate = license_plate_recognition(img_path)
@@ -29,7 +29,3 @@ def main():
 
     with open('responsed_license_plates.json', 'w') as save_file:
         json.dump(license_plates, save_file, indent=6)
-
-
-if __name__ == '__main__':
-    print(response("D:\Programs\PyCharm 2021.3.3\License_plate_recognition\images_jpg\Cars140.jpg"))

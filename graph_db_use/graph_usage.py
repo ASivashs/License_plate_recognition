@@ -1,6 +1,8 @@
 from py2neo import Graph, Node, Relationship, Subgraph
 from py2neo.matching import *
-
+from typing import NoReturn
+from help_func.help_func import is_not_blank
+import os
 
 class GraphUse:
     def __init__(self):
@@ -24,7 +26,7 @@ class GraphUse:
                 list_el.append(node_el_dict[value])
         return list_el
 
-    def __update_data_before_change(self) -> None:
+    def __update_data_before_change(self) -> NoReturn:
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
 
     def __find_vertex_after_change(self) -> str:
@@ -41,7 +43,7 @@ class GraphUse:
         except KeyError:
             print("Не было обнаружено новой вершины")
 
-    def __add_photo_with_relation_ver_intersec(self, dict_data: dict) -> None:
+    def __add_photo_with_relation_ver_intersec(self, dict_data: dict) -> NoReturn:
         """
         Add name_photo with relations
         :param dict_data: dict key can be: NUM_AUTO, COLOR, MARK
@@ -82,7 +84,7 @@ class GraphUse:
         except AttributeError:
             return False
 
-    def print_all_data(self) -> None:
+    def print_all_data(self) -> NoReturn:
         print(self._graph.query(
             "MATCH (n)-[rel]->(p)"
             "RETURN n.name as vert_1, type(rel) as relation, p.name as vert_2").to_data_frame())
@@ -91,7 +93,7 @@ class GraphUse:
             "WHERE NOT (n)-[]->() and not ()-[]->(n)"
             "RETURN n.name as standalone_vert").to_data_frame())
 
-    def add_new_node_photo(self, name_picture: str, func_recognize) -> None:
+    def add_new_node_photo(self, name_picture: str, func_recognize) -> NoReturn:
         """
         Add new node in DB
         :param name_picture: name of vertex
@@ -99,13 +101,14 @@ class GraphUse:
         :return: None
         """
         if not NodeMatcher(self._graph).match("Photo", name=name_picture).exists():
-            new_node = Node("Photo", name=name_picture)
+            new_node = Node("Photo", name=os.path.basename(name_picture))
             self._graph.create(new_node)
-            try:
-                dict_data = {"NUM_AUTO": "e781akx", "COLOR": "black", "MARK": "skoda"}  # func_recognize(name_picture)
-                self.__add_photo_with_relation_ver_intersec(dict_data=dict_data)
-            except TypeError:
+            res_recognize = func_recognize(name_picture)[1]
+            if is_not_blank(res_recognize):
                 print("Фотография добавлена, но не обработана")
+            else:
+                dict_data = {"NUM_AUTO": res_recognize, }
+                self.__add_photo_with_relation_ver_intersec(dict_data=dict_data)
         else:
             print("Такая ссылка на фотографию уже существует")
 
