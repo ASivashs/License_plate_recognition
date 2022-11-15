@@ -3,10 +3,12 @@ import imutils
 import numpy as np
 import pytesseract
 import sys
-pytesseract.pytesseract.tesseract_cmd = r'D:\\Programs\\Tesseract\\tesseract.exe'
 
-def check_slash():
-    return "/" if sys.platform == "Linux" else "\\"
+from .settings import check_slash
+
+
+if sys.platform == 'win32':
+    pytesseract.pytesseract.tesseract_cmd = r'D:\\Programs\\Tesseract\\tesseract.exe'
 
 def license_plate_recognition(image_name=None):
     """
