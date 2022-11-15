@@ -107,8 +107,9 @@ class GraphUse:
         :param func_recognize: func that recognize data from photo
         :return: None
         """
-        if not NodeMatcher(self._graph).match("Photo", name=name_picture).exists():
-            new_node = Node("Photo", name=os.path.basename(name_picture))
+        name_ver = os.path.basename(name_picture)
+        if not NodeMatcher(self._graph).match("Photo", name=name_ver).exists():
+            new_node = Node("Photo", name=name_ver)
             self._graph.create(new_node)
             res_recognize = func_recognize(name_picture)[1]
             if is_not_blank(res_recognize):
