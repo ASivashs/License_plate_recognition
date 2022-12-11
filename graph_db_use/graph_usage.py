@@ -1,6 +1,7 @@
 from py2neo import Graph, Node, Relationship, Subgraph
 from py2neo.matching import *
 from typing import NoReturn
+from numpy import ndarray
 from help_func.help_func import is_not_blank
 import os
 
@@ -8,8 +9,6 @@ class GraphUse:
     def __init__(self):
         self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
                             auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
-        # self._graph = Graph("bolt://localhost:7687",
-        #                     auth=("neo4j", "danila02"))  # Initialize DB
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
 
     @staticmethod
@@ -29,15 +28,14 @@ class GraphUse:
     def __update_data_before_change(self) -> NoReturn:
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
 
-    def __find_vertex_after_change(self) -> str:
+    def __find_vertex_after_change(self) -> tuple:
         """
         Find new add vertex
-        :return: find new Node
+        :return: tuple of id vertex and name
         """
         set_before_change = set(self.__convert_list(self._data_before_change))
         set_after_change = set(self.__convert_list(self._graph.query("MATCH (n) RETURN (n)").to_ndarray()))
         inter_sec_set = set_after_change.difference(set_before_change).pop()
-        self.__update_data_before_change()
         try:
             return NodeMatcher(self._graph).match(name=inter_sec_set).first(), inter_sec_set
         except KeyError:
@@ -64,6 +62,8 @@ class GraphUse:
                             relationships=list_of_relations)
         self._graph.create(subgraph)
         self.__create_rel_exist_and_add_vertex(name_main_node, "photo")
+        self.__update_data_before_change()
+        print('Новая фотография добавлена')
 
     def __create_rel_exist_and_add_vertex(self, name_node: str, choose: str) -> bool:
         """
@@ -143,7 +143,11 @@ class GraphUse:
             print('Такой номер на въезд уже существует')
             return False
 
-    def delete_num_auto_for_entry(self, num_auto: str):
+    def delete_num_auto_for_entry(self, num_auto: str) -> bool:
+        """
+        Delete num driver with relation vertex
+        :returns: bool
+        """
         if NodeMatcher(self._graph).match("ExistsNum", name=num_auto).exists():
             self._graph.run(f"match (n:ExistsNum)-[]->(p)"
                             f"where n.name = \"{num_auto}\""
@@ -167,20 +171,20 @@ class GraphUse:
         except AttributeError:
             print('Введена не существующая вершина')
 
-    def find_and_choose(self, recog_photo_num: str) -> dict:
+    def find_and_choose(self, recog_photo_num: str) -> dict | bool:
         """
         Find vertex in class ExistsNum and return his data
         :param recog_photo_num: Recognized photo number
-        :return: dict
+        :return: dict or bool
         """
         if NodeMatcher(self._graph).match("ExistsNum", name=recog_photo_num).exists():
             return self.ret_rel_with_num(recog_photo_num)
 
     def ret_rel_with_num(self, recog_photo_num: str) -> dict:
         """
-        Return list of vertex relation
+        Return dict of vertex relation
         :param recog_photo_num: Recognized photo number
-        :return: list
+        :return: dict
         """
         data_vertex = self._graph.query(f"match (n:ExistsNum)-[rel]->(p)"
                                         f"where n.name = \"{recog_photo_num}\" "
@@ -196,7 +200,11 @@ class GraphUse:
         """
         return True if NodeMatcher(self._graph).match("ExistsNum", name=recog_photo_num).exists() else False
 
-    def get_all_add_drivers(self):
+    def get_all_add_drivers(self) -> ndarray:
+        """
+        Return ndarray of all adding drivers
+        :return: ndarray
+        """
         data_vertex = self._graph.query("match (n:ExistsNum)"
                                         "return n.name").to_ndarray()
         return data_vertex
