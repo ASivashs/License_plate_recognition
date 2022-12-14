@@ -1,20 +1,26 @@
 import sys
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QPixmap
 
 from pyqt.design import design
 from recognition.main import response, graph_usage
 from help_func.help_func import is_not_blank
+from tg_bot.telegram_bot import start_bot
+from threading import Thread
 
 class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.pushButton.clicked.connect(self.browse_folder)
-        self.pushButton_3.clicked.connect(QCoreApplication.instance().quit)
+        self.pushButton_3.clicked.connect(self.close)
+        self.pushButton_3.clicked.connect(self.quit_app)
+
+    @staticmethod
+    def quit_app():
+        graph_usage.stop_agent()
 
     def browse_folder(self):
         file, _ = QFileDialog.getOpenFileName(self, 'Open File', './', "Image (*.png *.jpg *jpeg)")
@@ -58,4 +64,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    thread_bot = Thread(target=start_bot, daemon=True)
+    thread_app = Thread(target=main)
+    thread_bot.start()
+    thread_app.start()
+    #main()
