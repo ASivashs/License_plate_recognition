@@ -1,4 +1,4 @@
-from bot_init import bot
+from tg_bot.bot_init import bot
 from telebot import types
 from tg_bot.bot_func.show_drivers import show_drivers
 from recognition.main import graph_usage
@@ -85,5 +85,5 @@ def accept_del(message):
     else:
         bot.send_message(message.from_user.id, "Такого номера не существует")
 
-
-bot.polling(none_stop=True, interval=0)
+def start_bot():
+    bot.polling(none_stop=True, interval=0)

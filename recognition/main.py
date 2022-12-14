@@ -1,8 +1,7 @@
 import json
 import os
-
 from recognition.license_plate_recognition import license_plate_recognition
-from graph_db_use.graph_usage import GraphUse
+from graph_db_use.graph_usage_db import GraphUse
 from .settings import check_slash
 
 graph_usage = GraphUse()

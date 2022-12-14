@@ -3,6 +3,7 @@ from py2neo.matching import *
 from typing import NoReturn
 from numpy import ndarray
 from help_func.help_func import is_not_blank
+from threading import Thread, Event
 import os
 
 class GraphUse:
@@ -10,6 +11,24 @@ class GraphUse:
         self._graph = Graph("neo4j+s://59f72573.databases.neo4j.io",
                             auth=("neo4j", "uqPApwGmqjBvfT-fqUayvf8ETlYMb0i2yFZzHhrNz1k"))  # Initialize DB
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
+        self.__event = Event()
+        self.__thread = Thread(target=self.agent).start()
+        self.__id_vertex, self.__name_vertex = None, None
+
+    def agent(self):
+        print("Агент заработал")
+        while not self.__event.is_set():
+            set_before_change = set(self.__convert_list(self._data_before_change))
+            set_after_change = set(self.__convert_list(self._graph.query("MATCH (n) RETURN (n)").to_ndarray()))
+            try:
+                inter_sec_set = set_after_change.difference(set_before_change).pop()
+                self.__id_vertex, self.__name_vertex = NodeMatcher(self._graph).match(name=inter_sec_set).first(), inter_sec_set
+                self.__update_data_before_change()
+            except KeyError:
+                pass
+
+    def stop_agent(self):
+        self.__event.set()
 
     @staticmethod
     def __convert_list(list_ndarray) -> list:
@@ -28,19 +47,6 @@ class GraphUse:
     def __update_data_before_change(self) -> NoReturn:
         self._data_before_change = self._graph.query("MATCH (n) RETURN (n)").to_ndarray()
 
-    def __find_vertex_after_change(self) -> tuple:
-        """
-        Find new add vertex
-        :return: tuple of id vertex and name
-        """
-        set_before_change = set(self.__convert_list(self._data_before_change))
-        set_after_change = set(self.__convert_list(self._graph.query("MATCH (n) RETURN (n)").to_ndarray()))
-        inter_sec_set = set_after_change.difference(set_before_change).pop()
-        try:
-            return NodeMatcher(self._graph).match(name=inter_sec_set).first(), inter_sec_set
-        except KeyError:
-            print("Не было обнаружено новой вершины")
-
     def __add_photo_with_relation_ver_intersec(self, dict_data: dict) -> NoReturn:
         """
         Add name_photo with relations
@@ -48,7 +54,7 @@ class GraphUse:
         :return: None
         """
         list_of_nodes, list_of_relations = [], []
-        main_node, name_main_node = self.__find_vertex_after_change()
+        main_node, name_main_node = self.__id_vertex, self.__name_vertex
         try:
             for key, value in dict_data.items():
                 nodes = Node("Photo_data", name=value)
@@ -62,7 +68,6 @@ class GraphUse:
                             relationships=list_of_relations)
         self._graph.create(subgraph)
         self.__create_rel_exist_and_add_vertex(name_main_node, "photo")
-        self.__update_data_before_change()
         print('Новая фотография добавлена')
 
     def __create_rel_exist_and_add_vertex(self, name_node: str, choose: str) -> bool:
